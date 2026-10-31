@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102a22">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>СТРІЙ UA</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1b16;color:#eef8f2;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif}
+header{background:#1c392e;padding:30px 18px}
+h1{margin:0;font-size:32px}
+header p{color:#c0d5c9}
+main{max-width:760px;margin:auto;padding:14px}
+section{background:#172c24;border:1px solid #3b5d4d;border-radius:17px;padding:17px;margin:12px 0}
+h2{font-size:21px;margin:0 0 16px}
+label{display:block;margin:12px 0 6px;color:#d0e4d7}
+input,select{width:100%;font-size:16px;padding:13px;border:1px solid #547666;border-radius:11px;background:#263f34;color:white}
+button{border:0;border-radius:11px;padding:12px;font-size:15px;font-weight:650;cursor:pointer}
+.primary{background:#79caa6;color:#09251b;width:100%;margin-top:13px}
+.secondary{background:#345347;color:white}
+.danger{background:#6a3737;color:white}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{flex:1}
+.person{background:#243c32;border-radius:12px;padding:12px;margin:9px 0}
+.personTop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.personName{font-size:17px;font-weight:700;overflow-wrap:anywhere}
+.muted{color:#b4cfc0;font-size:13px;margin-top:5px}
+.personButtons{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.personButtons button{flex:1;min-width:45px}
+.present{background:#78caa5;color:#09251b}
+.absent{background:#704343;color:white}
+.roleSelect{margin-top:10px}
+.count{color:#9de0bb;margin:12px 0}
+.line{background:#29493b;border-radius:10px;padding:12px;margin:10px 0}
+.positions{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:6px}
+.position{background:#395e4c;border-radius:8px;padding:10px 3px;text-align:center;font-size:12px;overflow-wrap:anywhere}
+.position small{display:block;color:#c6dfd0;margin-bottom:5px}
+.empty{background:#263d33;color:#92ab9e}
+.notice{color:#ffdc9b;font-size:13px;line-height:1.5}
+#status{color:#a9e9c6}
+</style>
+</head>
+<body>
+<header>
+<h1>🇺🇦 СТРІЙ UA</h1>
+<p>Список, присутність, ролі та шикування</p>
+</header>
+<main>
+<section>
+<h2>➕ Додати людину</h2>
+<label for="name">Прізвище або ім'я</label>
+<input id="name" placeholder="Наприклад, Остафійчук">
+<label for="role">Спеціальна роль</label>
+<select id="role"></select>
+<button class="primary" id="add">Додати до списку</button>
+<p class="muted">Додавай людей від найвищого до найнижчого. Порядок можна змінити стрілками.</p>
+</section>
+
+<section>
+<h2>☑️ Список ліцеїстів</h2>
+<div class="actions">
+<button class="secondary" id="allYes">✓ Всі є</button>
+<button class="secondary" id="allNo">✕ Всі відсутні</button>
+</div>
+<p class="count" id="count"></p>
+<input id="search" placeholder="🔎 Пошук за прізвищем">
+<div id="people"></div>
+</section>
+
+<section>
+<h2>📐 Налаштування строю</h2>
+<label for="cols">Кількість відділень</label>
+<select id="cols">
+<option value="4">4 відділення</option>
+<option value="3">3 відділення</option>
+</select>
+<p class="muted">Перше відділення — справа. У схемі справа наліво: 1, 2, 3, 4.</p>
+<button class="primary" id="build">Сформувати стрій</button>
+</section>
+
+<section>
+<h2>🟩 Схема строю</h2>
+<p id="status">Додай людей і натисни «Сформувати стрій».</p>
+<div id="formation"></div>
+</section>
+</main>
+
+<script>
+"use strict";
+
+const roles=[
+"Звичайний",
+"Командир взводу",
+"Старшина",
+"Командир 1 відділення",
+"Командир 2 відділення",
+"Командир 3 відділення",
+"Командир 4 відділення",
+"Завжди перший",
+"Завжди останній"
+];
+
+const $=id=>document.getElementById(id);
+const storageKey="striy_ua_people_v3";
+let people=[];
+
+function load(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(storageKey)||"[]");
+  if(Array.isArray(saved)){
+   people=saved.filter(p=>p&&typeof p.name==="string")
+    .map(p=>({
+     id:p.id||makeId(),
+     name:p.name,
+     role:roles.includes(p.role)?p.role:roles[0],
+     present:p.present!==false
+    }));
+  }
+ }catch(e){people=[];}
+}
+function makeId(){
+ return Date.now().toString(36)+Math.random().toString(36).slice(2);
+}
+function save(){
+ try{localStorage.setItem(storageKey,JSON.stringify(people));}
+ catch(e){alert("Не вдалося зберегти список у браузері.");}
+}
+function element(tag,cls,txt){
+ const el=document.createElement(tag);
+ if(cls)el.className=cls;
+ if(txt!==undefined)el.textContent=txt;
+ return el;
+}
+function roleMenu(selected){
+ const select=document.createElement("select");
+ select.className="roleSelect";
+ roles.forEach(role=>{
+  const opt=document.createElement("option");
+  opt.value=role;
+  opt.textContent=role;
+  select.appendChild(opt);
+ });
+ select.value=selected;
+ return select;
+}
+function addPerson(){
+ const name=$("name").value.trim();
+ if(!name){alert("Введи прізвище або ім'я");return;}
+ people.push({
+  id:makeId(),
+  name,
+  role:$("role").value||roles[0],
+  present:true
+ });
+ $("name").value="";
+ save();render();
+}
+function update(id,fn){
+ const p=people.find(x=>x.id===id);
+ if(p){fn(p);save();render();}
+}
+function move(id,dir){
+ const i=people.findIndex(p=>p.id===id);
+ const j=i+dir;
+ if(i<0||j<0||j>=people.length)return;
+ [people[i],people[j]]=[people[j],people[i]];
+ save();render();
+}
+function render(){
+ const host=$("people");
+ host.replaceChildren();
+ const query=$("search").value.toLocaleLowerCase("uk");
+ const present=people.filter(p=>p.present).length;
+ $("count").textContent=`Є: ${present} • Немає: ${people.length-present} • Всього: ${people.length}`;
+ const filtered=people.filter(p=>p.name.toLocaleLowerCase("uk").includes(query));
+ if(!filtered.length){
+  host.appendChild(element("p","muted",people.length?"Нічого не знайдено.":"Список порожній. Додай першу людину."));
+ }
+ filtered.forEach(p=>{
+  const i=people.indexOf(p);
+  const card=element("div","person");
+  const top=element("div","personTop");
+  const info=element("div");
+  info.appendChild(element("div","personName",`${i+1}. ${p.name}`));
+  info.appendChild(element("div","muted",p.present?"🟢 Присутній":"🔴 Відсутній"));
+  top.appendChild(info);
+  card.appendChild(top);
+  const buttons=element("div","personButtons");
+  const toggle=element("button",p.present?"present":"absent",p.present?"✓ Є":"✕ Немає");
+  toggle.onclick=()=>update(p.id,x=>x.present=!x.present);
+  buttons.appendChild(toggle);
+  const up=element("button","secondary","↑");
+  up.disabled=i===0;
+  up.onclick=()=>move(p.id,-1);
+  buttons.appendChild(up);
+  const down=element("button","secondary","↓");
+  down.disabled=i===people.length-1;
+  down.onclick=()=>move(p.id,1);
+  buttons.appendChild(down);
+  const edit=element("button","secondary","✎");
+  edit.onclick=()=>{
+   const value=prompt("Зміни прізвище або ім'я",p.name);
+   if(value!==null&&value.trim())update(p.id,x=>x.name=value.trim());
+  };
+  buttons.appendChild(edit);
+  const del=element("button","danger","🗑");
+  del.onclick=()=>{
+   if(confirm(`Видалити ${p.name}?`)){
+    people=people.filter(x=>x.id!==p.id);
+    save();render();
+   }
+  };
+  buttons.appendChild(del);
+  card.appendChild(buttons);
+  const select=roleMenu(p.role);
+  select.setAttribute("aria-label","Роль: "+p.name);
+  select.onchange=()=>update(p.id,x=>x.role=select.value);
+  card.appendChild(select);
+  host.appendChild(card);
+ });
+}
+function build(){
+ const cols=Number($("cols").value);
+ const active=people.filter(p=>p.present);
+ const host=$("formation");
+ host.replaceChildren();
+ if(!active.length){
+  $("status").textContent="Немає присутніх людей.";
+  return;
+ }
+ const warnings=[];
+ const used=new Set();
+ const ordered=[];
+ function take(role){
+  const matches=active.filter(p=>p.role===role&&!used.has(p.id));
+  matches.forEach(p=>{ordered.push(p);used.add(p.id);});
+ }
+ take("Завжди перший");
+ take("Командир взводу");
+ take("Старшина");
+ active.forEach(p=>{
+  if(!used.has(p.id)&&!p.role.startsWith("Командир ")&&p.role!=="Завжди останній"){
+   ordered.push(p);used.add(p.id);
+  }
+ });
+ // Командирів відділень розміщуємо окремо.
+ const commanders={};
+ for(let c=1;c<=cols;c++){
+  const found=active.filter(p=>p.role===`Командир ${c} відділення`);
+  if(found.length>1)warnings.push(`Кілька командирів ${c} відділення.`);
+  if(found.length)commanders[c]=found[0];
+ }
+ const assignedIds=new Set(Object.values(commanders).map(p=>p.id));
+ const regular=ordered.filter(p=>!assignedIds.has(p.id));
+ const last=active.filter(p=>p.role==="Завжди останній"&&!assignedIds.has(p.id));
+ const extra=active.filter(p=>p.role.startsWith("Командир ")&&!assignedIds.has(p.id)&&!regular.includes(p));
+ extra.forEach(p=>regular.push(p));
+ last.forEach(p=>regular.push(p));
+ const rows=Math.ceil(active.length/cols);
+ const slots=Array(rows*cols).fill(null);
+ // Перші місця відділень відведені командирам.
+ for(let c=1;c<=cols;c++){
+  if(commanders[c])slots[c-1]=commanders[c];
+ }
+ const placed=new Set(Object.values(commanders).map(p=>p.id));
+ const pool=regular.filter(p=>!placed.has(p.id));
+ let cursor=0;
+ for(let r=0;r<rows;r++){
+  for(let c=1;c<=cols;c++){
+   const index=r*cols+c-1;
+   if(!slots[index]&&cursor<pool.length)slots[index]=pool[cursor++];
+  }
+ }
+ // Відображення: перше відділення справа.
+ const head=element("div","line");
+ head.style.setProperty("--cols",cols);
+ const heading=element("div","positions");
+ heading.style.setProperty("--cols",cols);
+ for(let c=cols;c>=1;c--){
+  heading.appendChild(element("div","position",`${c} відділення`));
+ }
+ head.appendChild(heading);
+ host.appendChild(head);
+ for(let r=0;r<rows;r++){
+  const line=element("div","line");
+  line.appendChild(element("div","muted",`Шеренга ${r+1}`));
+  const grid=element("div","positions");
+  grid.style.setProperty("--cols",cols);
+  for(let c=cols;c>=1;c--){
+   const p=slots[r*cols+c-1];
+   const cell=element("div",p?"position":"position empty");
+   cell.appendChild(element("small",`${c} відд.`));
+   cell.appendChild(document.createTextNode(p?p.name:"—"));
+   grid.appendChild(cell);
+  }
+  line.appendChild(grid);
+  host.appendChild(line);
+ }
+ $("status").textContent=`У строю: ${active.length} • Відділень: ${cols} • Шеренг: ${rows}`;
+ if(active.length%cols!==0){
+  warnings.push("Кількість присутніх не кратна кількості відділень. Є неповна шеренга.");
+ }
+ if(active.some(p=>p.role==="Командир 4 відділення")&&cols===3){
+  warnings.push("Командир 4 відділення: обрано лише 3 відділення.");
+ }
+ if(warnings.length){
+  host.appendChild(element("p","notice",warnings.join(" ")));
+ }
+}
+load();
+const initialRole=roleMenu(roles[0]);
+initialRole.id="role";
+$("role").replaceWith(initialRole);
+$("add").onclick=addPerson;
+$("name").addEventListener("keydown",e=>{
+ if(e.key==="Enter")addPerson();
+});
+$("allYes").onclick=()=>{
+ people.forEach(p=>p.present=true);save();render();
+};
+$("allNo").onclick=()=>{
+ people.forEach(p=>p.present=false);save();render();
+};
+$("search").oninput=render;
+$("build").onclick=build;
+render();
+</script>
+</body>
+</html>
