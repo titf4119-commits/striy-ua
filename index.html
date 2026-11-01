@@ -48,6 +48,7 @@ button:disabled{opacity:.4}
 .groupTitle{font-size:19px;font-weight:750;margin-bottom:10px}
 .groupLeader{color:#a9e9c6;font-size:14px;margin-bottom:10px}
 .groupPerson{background:#395e4c;padding:12px;border-radius:9px;margin:6px 0;overflow-wrap:anywhere}
+.groupCount{color:#b4cfc0;font-size:13px;margin-bottom:10px}
 @media(max-width:390px){
  .attendanceGrid{gap:8px}
 }
@@ -303,29 +304,54 @@ function render(){
  renderAttendance();
 }
 
+/* Кількість місць у списках:
+   4 відділення: пріоритет залишку 1, 4, 2, 3.
+   3 відділення: пріоритет залишку 1, 3, 2.
+*/
+function calculateSizes(total,cols){
+ const base=Math.floor(total/cols);
+ const remainder=total%cols;
+ const sizes=Array(cols).fill(base);
+
+ const priority=cols===4
+  ?[0,3,1,2]
+  :[0,2,1];
+
+ for(let i=0;i<remainder;i++){
+  sizes[priority[i]]++;
+ }
+ return sizes;
+}
+
 function build(){
  const cols=Number($("cols").value);
+ const host=$("formation");
+ const separate=$("separateRoles");
+
+ host.replaceChildren();
+ separate.replaceChildren();
+
  const active=people.filter(p=>
   p.present &&
   p.role!=="Командир взводу" &&
   p.role!=="Старшина"
  );
 
- const host=$("formation");
- const separate=$("separateRoles");
- host.replaceChildren();
- separate.replaceChildren();
-
+ // Окремі ролі
  ["Командир взводу","Старшина"].forEach(role=>{
   const block=element("div","line");
   block.appendChild(element("div","personName",role));
+
   const members=people.filter(p=>p.present&&p.role===role);
 
   if(members.length){
-   members.forEach(p=>block.appendChild(element("div","muted",p.name)));
+   members.forEach(p=>{
+    block.appendChild(element("div","muted",p.name));
+   });
   }else{
    block.appendChild(element("div","muted","Не призначено"));
   }
+
   separate.appendChild(block);
  });
 
@@ -334,38 +360,83 @@ function build(){
   return;
  }
 
- // Рівномірне групування списку за кількістю присутніх.
+ // Визначаємо керівників відповідних списків.
+ const leaders=Array(cols).fill(null);
+ const leaderIds=new Set();
+
+ for(let i=0;i<cols;i++){
+  const role=`Командир ${i+1} відділення`;
+  const found=active.filter(p=>p.role===role);
+
+  if(found.length){
+   leaders[i]=found[0];
+   leaderIds.add(found[0].id);
+  }
+ }
+
+ // Решта учасників без повторного додавання керівників.
+ const regular=active.filter(p=>!leaderIds.has(p.id));
+
+ // Розрахунок кількості людей у кожному списку.
+ const sizes=calculateSizes(active.length,cols);
+
+ // Створення списків.
  const groups=Array.from({length:cols},()=>[]);
- active.forEach((p,i)=>{
-  groups[i%cols].push(p);
- });
+ let cursor=0;
+
+ for(let i=0;i<cols;i++){
+  const size=sizes[i];
+  const leader=leaders[i];
+
+  // Керівник враховується в загальній кількості,
+  // але відображається окремо в заголовку.
+  const regularSlots=size-(leader?1:0);
+
+  for(let j=0;j<regularSlots&&cursor<regular.length;j++){
+   groups[i].push(regular[cursor++]);
+  }
+ }
 
  groups.forEach((group,index)=>{
   const block=element("div","groupCard");
-  block.appendChild(element("div","groupTitle",`${index+1} відділення`));
 
-  const leader=people.find(p=>
-   p.present && p.role===`Командир ${index+1} відділення`
-  );
+  block.appendChild(element(
+   "div","groupTitle",
+   `${index+1} відділення`
+  ));
+
+  const leader=leaders[index];
 
   block.appendChild(element(
    "div","groupLeader",
-   leader?`Командир відділення: ${leader.name}`:"Командира не призначено"
+   leader
+    ?`Командир відділення: ${leader.name}`
+    :"Командира не призначено"
+  ));
+
+  block.appendChild(element(
+   "div","groupCount",
+   `Кількість людей: ${sizes[index]}`
   ));
 
   if(group.length){
    group.forEach(p=>{
-    block.appendChild(element("div","groupPerson",p.name));
+    block.appendChild(element(
+     "div","groupPerson",
+     p.name
+    ));
    });
-  }else{
-   block.appendChild(element("div","groupPerson","—"));
+  }else if(!leader){
+   block.appendChild(element(
+    "div","groupPerson","—"
+   ));
   }
 
   host.appendChild(block);
  });
 
  $("status").textContent=
- `Присутні у списку: ${active.length} • Груп: ${cols}`;
+ `Присутні у списках: ${active.length} • Відділень: ${cols} • Розподіл: ${sizes.join(" / ")}`;
 }
 
 load();
@@ -375,6 +446,7 @@ initialRole.id="role";
 $("role").replaceWith(initialRole);
 
 $("add").onclick=addPerson;
+
 $("name").addEventListener("keydown",e=>{
  if(e.key==="Enter")addPerson();
 });
