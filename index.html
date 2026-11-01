@@ -7,191 +7,108 @@
 <meta name="theme-color" content="#102a22">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>СТРІЙ UA</title>
-
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;background:#0b1b16;color:#eef8f2;
- font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif
-}
+body{margin:0;background:#0b1b16;color:#eef8f2;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif}
 header{background:#1c392e;padding:30px 18px}
 h1{margin:0;font-size:32px}
 header p{color:#c0d5c9}
-main{max-width:900px;margin:auto;padding:14px}
-section{
- background:#172c24;border:1px solid #3b5d4d;
- border-radius:17px;padding:17px;margin:12px 0
-}
+main{max-width:760px;margin:auto;padding:14px}
+section{background:#172c24;border:1px solid #3b5d4d;border-radius:17px;padding:17px;margin:12px 0}
 h2{font-size:21px;margin:0 0 16px}
 label{display:block;margin:12px 0 6px;color:#d0e4d7}
-input,select{
- width:100%;font-size:16px;padding:13px;
- border:1px solid #547666;border-radius:11px;
- background:#263f34;color:white
-}
-button{
- border:0;border-radius:11px;padding:12px;
- font-size:15px;font-weight:650;cursor:pointer
-}
-button:disabled{opacity:.4;cursor:not-allowed}
-.primary{
- background:#79caa6;color:#09251b;
- width:100%;margin-top:13px
-}
+input,select{width:100%;font-size:16px;padding:13px;border:1px solid #547666;border-radius:11px;background:#263f34;color:white}
+button{border:0;border-radius:11px;padding:12px;font-size:15px;font-weight:650;cursor:pointer}
+.primary{background:#79caa6;color:#09251b;width:100%;margin-top:13px}
 .secondary{background:#345347;color:white}
 .danger{background:#6a3737;color:white}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .actions button{flex:1}
-.person{
- background:#243c32;border-radius:12px;
- padding:12px;margin:9px 0
-}
+.person{background:#243c32;border-radius:12px;padding:12px;margin:9px 0}
+.personTop{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .personName{font-size:17px;font-weight:700;overflow-wrap:anywhere}
 .muted{color:#b4cfc0;font-size:13px;margin-top:5px}
 .personButtons{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .personButtons button{flex:1;min-width:45px}
 .present{background:#78caa5;color:#09251b}
 .absent{background:#704343;color:white}
+.roleSelect{margin-top:10px}
 .count{color:#9de0bb;margin:12px 0}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.stat{
- background:#243c32;border-radius:12px;padding:15px;text-align:center
-}
-.stat span{display:block;color:#a9e9c6;font-size:30px;font-weight:750}
-.stat small{color:#c0d5c9;font-size:14px}
-.absentList,.summaryGroup{
- background:#243c32;border-radius:12px;padding:13px;margin:10px 0
-}
-.absentList h3{margin:0 0 8px;color:#ffb1a5;font-size:16px}
-.absentName,.summaryName{
- padding:8px 0;border-top:1px solid #395548;overflow-wrap:anywhere
-}
-.departmentGrid{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px
-}
-.department{background:#29493b;border-radius:13px;padding:9px;min-width:0}
-.departmentTitle{
- background:#395e4c;border-radius:9px;padding:12px 3px;
- text-align:center;margin-bottom:10px
-}
-.departmentPerson{
- background:#395e4c;border-radius:9px;padding:10px 5px;
- margin:7px 0;text-align:center;overflow-wrap:anywhere;font-size:14px
-}
-.departmentEmpty{text-align:center;color:#92ab9e;padding:10px 0;font-size:13px}
-.summaryGroup h3{margin:0 0 9px;font-size:16px;color:#9de0bb}
+.line{background:#29493b;border-radius:10px;padding:12px;margin:10px 0}
+.positions{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:6px}
+.position{background:#395e4c;border-radius:8px;padding:10px 3px;text-align:center;font-size:12px;overflow-wrap:anywhere}
+.position small{display:block;color:#c6dfd0;margin-bottom:5px}
+.empty{background:#263d33;color:#92ab9e}
 .notice{color:#ffdc9b;font-size:13px;line-height:1.5}
 #status{color:#a9e9c6}
-@media(max-width:520px){
- main{padding:9px}
- section{padding:13px}
- .departmentGrid{gap:5px}
- .department{padding:6px}
- .departmentTitle{padding:9px 2px;font-size:12px}
- .departmentPerson{font-size:12px;padding:9px 3px}
-}
 </style>
 </head>
-
 <body>
 <header>
 <h1>🇺🇦 СТРІЙ UA</h1>
-<p>Список, присутність, ролі та відділення</p>
+<p>Список, присутність, ролі та шикування</p>
 </header>
 
 <main>
-
 <section>
 <h2>➕ Додати людину</h2>
-
 <label for="name">Прізвище або ім'я</label>
 <input id="name" placeholder="Наприклад, Остафійчук">
-
 <label for="role">Спеціальна роль</label>
 <select id="role"></select>
-
-<label for="department">Відділення</label>
-<select id="department">
-<option value="1">1 відділення</option>
-<option value="2">2 відділення</option>
-<option value="3">3 відділення</option>
-<option value="4">4 відділення</option>
-</select>
-
 <button class="primary" id="add">Додати до списку</button>
-<p class="muted">Порядок у загальному списку можна змінювати стрілками.</p>
+<p class="muted">Додавай людей від найвищого до найнижчого. Порядок можна змінити стрілками.</p>
 </section>
 
 <section>
 <h2>☑️ Список ліцеїстів</h2>
-
 <div class="actions">
 <button class="secondary" id="allYes">✓ Всі є</button>
 <button class="secondary" id="allNo">✕ Всі відсутні</button>
 </div>
-
 <p class="count" id="count"></p>
 <input id="search" placeholder="🔎 Пошук за прізвищем">
 <div id="people"></div>
 </section>
 
 <section>
-<h2>📊 Присутність</h2>
-
-<div class="stats">
-<div class="stat">
-<span id="presentCount">0</span>
-<small>Присутні</small>
-</div>
-<div class="stat">
-<span id="absentCount">0</span>
-<small>Відсутні</small>
-</div>
-</div>
-
-<div class="absentList">
-<h3>Відсутні:</h3>
-<div id="absentNames"></div>
-</div>
-</section>
-
-<section>
-<h2>📐 Налаштування відображення</h2>
+<h2>📐 Налаштування строю</h2>
 <label for="cols">Кількість відділень</label>
 <select id="cols">
 <option value="4">4 відділення</option>
 <option value="3">3 відділення</option>
 </select>
-<p class="muted">Вибір змінює кількість карток, які показуються на екрані.</p>
+<p class="muted">Перше відділення — справа. У схемі справа наліво: 1, 2, 3, 4.</p>
+<button class="primary" id="build">Сформувати стрій</button>
 </section>
 
 <section>
-<h2>🟩 Відділення</h2>
-<p class="muted">Присутні люди, згруповані за вибраним відділенням.</p>
-<div id="departments" class="departmentGrid"></div>
+<h2>⭐ Окремі ролі</h2>
+<div id="separateRoles">
+<p class="muted">Натисни «Сформувати стрій».</p>
+</div>
 </section>
 
 <section>
-<h2>📋 Зведення за ролями</h2>
-<p id="status">Додай людей до списку.</p>
+<h2>🟩 Схема строю</h2>
+<p id="status">Додай людей і натисни «Сформувати стрій».</p>
 <div id="formation"></div>
 </section>
-
 </main>
 
 <script>
 "use strict";
 
 const roles=[
- "Звичайний",
- "Командир взводу",
- "Старшина",
- "Командир 1 відділення",
- "Командир 2 відділення",
- "Командир 3 відділення",
- "Командир 4 відділення",
- "Завжди перший",
- "Завжди останній"
+"Звичайний",
+"Командир взводу",
+"Старшина",
+"Командир 1 відділення",
+"Командир 2 відділення",
+"Командир 3 відділення",
+"Командир 4 відділення",
+"Завжди перший",
+"Завжди останній"
 ];
 
 const $=id=>document.getElementById(id);
@@ -206,20 +123,15 @@ function load(){
  try{
   const saved=JSON.parse(localStorage.getItem(storageKey)||"[]");
   if(Array.isArray(saved)){
-   people=saved
-    .filter(p=>p&&typeof p.name==="string")
+   people=saved.filter(p=>p&&typeof p.name==="string")
     .map(p=>({
      id:p.id||makeId(),
      name:p.name,
      role:roles.includes(p.role)?p.role:roles[0],
-     present:p.present!==false,
-     department:[1,2,3,4].includes(Number(p.department))
-      ?Number(p.department):1
+     present:p.present!==false
     }));
   }
- }catch(e){
-  people=[];
- }
+ }catch(e){people=[];}
 }
 
 function save(){
@@ -240,54 +152,31 @@ function element(tag,cls,txt){
 function roleMenu(selected){
  const select=document.createElement("select");
  select.className="roleSelect";
-
  roles.forEach(role=>{
   const opt=document.createElement("option");
   opt.value=role;
   opt.textContent=role;
   select.appendChild(opt);
  });
-
  select.value=selected;
- return select;
-}
-
-function departmentMenu(selected){
- const select=document.createElement("select");
- select.className="departmentSelect";
-
- for(let i=1;i<=4;i++){
-  const opt=document.createElement("option");
-  opt.value=String(i);
-  opt.textContent=i+" відділення";
-  select.appendChild(opt);
- }
-
- select.value=String(selected||1);
  return select;
 }
 
 function addPerson(){
  const name=$("name").value.trim();
-
  if(!name){
   alert("Введи прізвище або ім'я");
-  $("name").focus();
   return;
  }
-
  people.push({
   id:makeId(),
   name,
   role:$("role").value||roles[0],
-  present:true,
-  department:Number($("department").value)||1
+  present:true
  });
-
  $("name").value="";
  save();
  render();
- $("name").focus();
 }
 
 function update(id,fn){
@@ -302,15 +191,13 @@ function update(id,fn){
 function move(id,dir){
  const i=people.findIndex(p=>p.id===id);
  const j=i+dir;
-
  if(i<0||j<0||j>=people.length)return;
-
  [people[i],people[j]]=[people[j],people[i]];
  save();
  render();
 }
 
-function renderPeople(){
+function render(){
  const host=$("people");
  host.replaceChildren();
 
@@ -334,13 +221,25 @@ function renderPeople(){
  filtered.forEach(p=>{
   const i=people.indexOf(p);
   const card=element("div","person");
+  const top=element("div","personTop");
+  const info=element("div");
 
-  card.appendChild(element("div","personName",`${i+1}. ${p.name}`));
-  card.appendChild(element("div","muted",p.present?"🟢 Присутній":"🔴 Відсутній"));
+  info.appendChild(element("div","personName",`${i+1}. ${p.name}`));
+  info.appendChild(element(
+   "div","muted",
+   p.present?"🟢 Присутній":"🔴 Відсутній"
+  ));
+
+  top.appendChild(info);
+  card.appendChild(top);
 
   const buttons=element("div","personButtons");
 
-  const toggle=element("button",p.present?"present":"absent",p.present?"✓ Є":"✕ Немає");
+  const toggle=element(
+   "button",
+   p.present?"present":"absent",
+   p.present?"✓ Є":"✕ Немає"
+  );
   toggle.onclick=()=>update(p.id,x=>x.present=!x.present);
   buttons.appendChild(toggle);
 
@@ -380,102 +279,108 @@ function renderPeople(){
   select.onchange=()=>update(p.id,x=>x.role=select.value);
   card.appendChild(select);
 
-  const dept=departmentMenu(p.department);
-  dept.setAttribute("aria-label","Відділення: "+p.name);
-  dept.onchange=()=>update(p.id,x=>x.department=Number(dept.value));
-  card.appendChild(dept);
-
   host.appendChild(card);
  });
 }
 
-function renderPresence(){
+function build(){
+ const cols=Number($("cols").value);
  const active=people.filter(p=>p.present);
- const absent=people.filter(p=>!p.present);
-
- $("presentCount").textContent=active.length;
- $("absentCount").textContent=absent.length;
-
- const host=$("absentNames");
- host.replaceChildren();
-
- if(!absent.length){
-  host.appendChild(element("p","muted","Немає відсутніх."));
-  return;
- }
-
- absent.forEach(p=>{
-  host.appendChild(element("div","absentName",p.name));
- });
-}
-
-function renderDepartments(){
- const host=$("departments");
- host.replaceChildren();
-
- const cols=Number($("cols").value)||4;
-
- for(let i=1;i<=cols;i++){
-  const group=people.filter(
-   p=>p.present&&Number(p.department)===i
-  );
-
-  const box=element("div","department");
-  const title=element("div","departmentTitle",i+" відділення");
-  box.appendChild(title);
-
-  if(!group.length){
-   box.appendChild(element("div","departmentEmpty","Поки порожньо"));
-  }else{
-   group.forEach(p=>{
-    box.appendChild(element("div","departmentPerson",p.name));
-   });
-  }
-
-  host.appendChild(box);
- }
-}
-
-function renderRoles(){
  const host=$("formation");
+ const separate=$("separateRoles");
+
  host.replaceChildren();
-
- const active=people.filter(p=>p.present);
-
- $("status").textContent=
-  `Присутніх: ${active.length} • Відсутніх: ${people.length-active.length}`;
+ separate.replaceChildren();
 
  if(!active.length){
-  host.appendChild(element("p","muted","Немає присутніх."));
+  $("status").textContent="Немає присутніх людей.";
+  separate.appendChild(element("p","muted","Немає присутніх людей."));
   return;
  }
 
- roles.forEach(role=>{
-  const group=active.filter(p=>p.role===role);
-  if(!group.length)return;
+ // Окреме відображення командира взводу та старшини.
+ ["Командир взводу","Старшина"].forEach(role=>{
+  const members=active.filter(p=>p.role===role);
+  const block=element("div","line");
+  block.appendChild(element("div","personName",role));
 
-  const box=element("div","summaryGroup");
-  box.appendChild(element("h3","",`${role} — ${group.length}`));
+  if(members.length){
+   members.forEach(p=>{
+    block.appendChild(element("div","muted",p.name));
+   });
+  }else{
+   block.appendChild(element("div","muted","Не призначено"));
+  }
 
-  group.forEach(p=>{
-   box.appendChild(element("div","summaryName",p.name));
-  });
-
-  host.appendChild(box);
+  separate.appendChild(block);
  });
-}
 
-function render(){
- renderPeople();
- renderPresence();
- renderDepartments();
- renderRoles();
-}
+ // Командир взводу та старшина не входять до загального списку.
+ const excludedRoles=["Командир взводу","Старшина"];
+ const regular=active.filter(p=>!excludedRoles.includes(p.role));
 
-function setAllPresence(value){
- people.forEach(p=>p.present=value);
- save();
- render();
+ const rows=Math.ceil(regular.length/cols);
+
+ if(!regular.length){
+  $("status").textContent="У загальному списку немає інших присутніх.";
+  return;
+ }
+
+ // Нейтральне відображення записів за відділеннями.
+ const headingLine=element("div","line");
+ const heading=element("div","positions");
+ heading.style.setProperty("--cols",cols);
+
+ for(let c=cols;c>=1;c--){
+  heading.appendChild(element("div","position",`${c} відділення`));
+ }
+
+ headingLine.appendChild(heading);
+ host.appendChild(headingLine);
+
+ const groups=Array.from({length:cols},()=>[]);
+ regular.forEach((p,i)=>{
+  groups[i%cols].push(p);
+ });
+
+ const maxRows=Math.max(...groups.map(g=>g.length));
+
+ for(let r=0;r<maxRows;r++){
+  const line=element("div","line");
+  line.appendChild(element("div","muted",`Рядок ${r+1}`));
+
+  const grid=element("div","positions");
+  grid.style.setProperty("--cols",cols);
+
+  for(let c=cols-1;c>=0;c--){
+   const p=groups[c][r];
+   const cell=element("div",p?"position":"position empty");
+
+   cell.appendChild(element("small",`${c+1} відд.`));
+   cell.appendChild(document.createTextNode(p?p.name:"—"));
+   grid.appendChild(cell);
+  }
+
+  line.appendChild(grid);
+  host.appendChild(line);
+ }
+
+ $("status").textContent=
+  `У списку: ${regular.length} • Відділень: ${cols}`;
+
+ if(regular.length%cols!==0){
+  host.appendChild(element(
+   "p","notice",
+   "Кількість записів не ділиться порівну між відділеннями."
+  ));
+ }
+
+ if(active.some(p=>p.role==="Командир 4 відділення")&&cols===3){
+  host.appendChild(element(
+   "p","notice",
+   "Командир 4 відділення: обрано лише 3 відділення."
+  ));
+ }
 }
 
 load();
@@ -484,16 +389,26 @@ const initialRole=roleMenu(roles[0]);
 initialRole.id="role";
 $("role").replaceWith(initialRole);
 
-$("add").addEventListener("click",addPerson);
+$("add").onclick=addPerson;
 
 $("name").addEventListener("keydown",e=>{
  if(e.key==="Enter")addPerson();
 });
 
-$("allYes").addEventListener("click",()=>setAllPresence(true));
-$("allNo").addEventListener("click",()=>setAllPresence(false));
-$("search").addEventListener("input",render);
-$("cols").addEventListener("change",render);
+$("allYes").onclick=()=>{
+ people.forEach(p=>p.present=true);
+ save();
+ render();
+};
+
+$("allNo").onclick=()=>{
+ people.forEach(p=>p.present=false);
+ save();
+ render();
+};
+
+$("search").oninput=render;
+$("build").onclick=build;
 
 render();
 </script>
