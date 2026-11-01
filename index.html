@@ -227,6 +227,13 @@ function build(){
  const active=people.filter(p=>p.present);
  const host=$("formation");
  host.replaceChildren();
+ const platoonCommander=active.find(p=>p.role==="Командир взводу");
+
+if(platoonCommander){
+  const box=element("div","notice");
+  box.textContent="Командир взводу: "+platoonCommander.name;
+  host.appendChild(box);
+}
  if(!active.length){
   $("status").textContent="Немає присутніх людей.";
   return;
@@ -235,13 +242,12 @@ function build(){
  const used=new Set();
  const ordered=[];
  function take(role){
-  const matches=active.filter(p=>p.role===role&&!used.has(p.id));
+  const matches=formationPeople.filter(p=>p.role===role&&!used.has(p.id));
   matches.forEach(p=>{ordered.push(p);used.add(p.id);});
  }
  take("Завжди перший");
- take("Командир взводу");
  take("Старшина");
- active.forEach(p=>{
+ formationPeople.forEach(p=>{
   if(!used.has(p.id)&&!p.role.startsWith("Командир ")&&p.role!=="Завжди останній"){
    ordered.push(p);used.add(p.id);
   }
@@ -249,17 +255,17 @@ function build(){
  // Командирів відділень розміщуємо окремо.
  const commanders={};
  for(let c=1;c<=cols;c++){
-  const found=active.filter(p=>p.role===`Командир ${c} відділення`);
+  const found=formationPeople.filter(p=>p.role===`Командир ${c} відділення`);
   if(found.length>1)warnings.push(`Кілька командирів ${c} відділення.`);
   if(found.length)commanders[c]=found[0];
  }
  const assignedIds=new Set(Object.values(commanders).map(p=>p.id));
  const regular=ordered.filter(p=>!assignedIds.has(p.id));
- const last=active.filter(p=>p.role==="Завжди останній"&&!assignedIds.has(p.id));
- const extra=active.filter(p=>p.role.startsWith("Командир ")&&!assignedIds.has(p.id)&&!regular.includes(p));
+ const last=formationPeople.filter(p=>p.role==="Завжди останній"&&!assignedIds.has(p.id));
+ const extra=formationPeople.filter(p=>p.role.startsWith("Командир ")&&!assignedIds.has(p.id)&&!regular.includes(p));
  extra.forEach(p=>regular.push(p));
  last.forEach(p=>regular.push(p));
- const rows=Math.ceil(active.length/cols);
+ const rows=Math.ceil(formationPeople.length/cols);
  const slots=Array(rows*cols).fill(null);
  // Перші місця відділень відведені командирам.
  for(let c=1;c<=cols;c++){
