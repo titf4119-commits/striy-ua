@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -9,169 +10,93 @@
 
 <style>
 *{box-sizing:border-box}
-
 body{
- margin:0;
- background:#0b1b16;
- color:#eef8f2;
+ margin:0;background:#0b1b16;color:#eef8f2;
  font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif
 }
-
-header{
- background:#1c392e;
- padding:30px 18px
-}
-
+header{background:#1c392e;padding:30px 18px}
 h1{margin:0;font-size:32px}
 header p{color:#c0d5c9}
-
-main{max-width:760px;margin:auto;padding:14px}
-
+main{max-width:900px;margin:auto;padding:14px}
 section{
- background:#172c24;
- border:1px solid #3b5d4d;
- border-radius:17px;
- padding:17px;
- margin:12px 0
+ background:#172c24;border:1px solid #3b5d4d;
+ border-radius:17px;padding:17px;margin:12px 0
 }
-
 h2{font-size:21px;margin:0 0 16px}
-
-label{
- display:block;
- margin:12px 0 6px;
- color:#d0e4d7
-}
-
+label{display:block;margin:12px 0 6px;color:#d0e4d7}
 input,select{
- width:100%;
- font-size:16px;
- padding:13px;
- border:1px solid #547666;
- border-radius:11px;
- background:#263f34;
- color:white
+ width:100%;font-size:16px;padding:13px;
+ border:1px solid #547666;border-radius:11px;
+ background:#263f34;color:white
 }
-
 button{
- border:0;
- border-radius:11px;
- padding:12px;
- font-size:15px;
- font-weight:650;
- cursor:pointer
+ border:0;border-radius:11px;padding:12px;
+ font-size:15px;font-weight:650;cursor:pointer
 }
-
-button:disabled{
- opacity:.4;
- cursor:not-allowed
-}
-
+button:disabled{opacity:.4;cursor:not-allowed}
 .primary{
- background:#79caa6;
- color:#09251b;
- width:100%;
- margin-top:13px
+ background:#79caa6;color:#09251b;
+ width:100%;margin-top:13px
 }
-
 .secondary{background:#345347;color:white}
 .danger{background:#6a3737;color:white}
-
-.actions{
- display:flex;
- gap:8px;
- flex-wrap:wrap
-}
-
+.actions{display:flex;gap:8px;flex-wrap:wrap}
 .actions button{flex:1}
-
 .person{
- background:#243c32;
- border-radius:12px;
- padding:12px;
- margin:9px 0
+ background:#243c32;border-radius:12px;
+ padding:12px;margin:9px 0
 }
-
-.personTop{
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:8px
-}
-
-.personName{
- font-size:17px;
- font-weight:700;
- overflow-wrap:anywhere
-}
-
-.muted{
- color:#b4cfc0;
- font-size:13px;
- margin-top:5px
-}
-
-.personButtons{
- display:flex;
- gap:6px;
- flex-wrap:wrap;
- margin-top:10px
-}
-
-.personButtons button{
- flex:1;
- min-width:45px
-}
-
+.personName{font-size:17px;font-weight:700;overflow-wrap:anywhere}
+.muted{color:#b4cfc0;font-size:13px;margin-top:5px}
+.personButtons{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.personButtons button{flex:1;min-width:45px}
 .present{background:#78caa5;color:#09251b}
 .absent{background:#704343;color:white}
-
-.roleSelect{margin-top:10px}
-
-.count{
- color:#9de0bb;
- margin:12px 0
+.count{color:#9de0bb;margin:12px 0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.stat{
+ background:#243c32;border-radius:12px;padding:15px;text-align:center
 }
-
-.notice{
- color:#ffdc9b;
- font-size:13px;
- line-height:1.5
+.stat span{display:block;color:#a9e9c6;font-size:30px;font-weight:750}
+.stat small{color:#c0d5c9;font-size:14px}
+.absentList,.summaryGroup{
+ background:#243c32;border-radius:12px;padding:13px;margin:10px 0
 }
-
+.absentList h3{margin:0 0 8px;color:#ffb1a5;font-size:16px}
+.absentName,.summaryName{
+ padding:8px 0;border-top:1px solid #395548;overflow-wrap:anywhere
+}
+.departmentGrid{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px
+}
+.department{background:#29493b;border-radius:13px;padding:9px;min-width:0}
+.departmentTitle{
+ background:#395e4c;border-radius:9px;padding:12px 3px;
+ text-align:center;margin-bottom:10px
+}
+.departmentPerson{
+ background:#395e4c;border-radius:9px;padding:10px 5px;
+ margin:7px 0;text-align:center;overflow-wrap:anywhere;font-size:14px
+}
+.departmentEmpty{text-align:center;color:#92ab9e;padding:10px 0;font-size:13px}
+.summaryGroup h3{margin:0 0 9px;font-size:16px;color:#9de0bb}
+.notice{color:#ffdc9b;font-size:13px;line-height:1.5}
 #status{color:#a9e9c6}
-
-.summaryGroup{
- background:#243c32;
- border-radius:12px;
- padding:13px;
- margin:10px 0
-}
-
-.summaryGroup h3{
- margin:0 0 9px;
- font-size:16px;
- color:#9de0bb
-}
-
-.summaryName{
- padding:7px 0;
- border-top:1px solid #395548;
- overflow-wrap:anywhere
-}
-
-.empty{
- color:#92ab9e;
- font-size:14px
+@media(max-width:520px){
+ main{padding:9px}
+ section{padding:13px}
+ .departmentGrid{gap:5px}
+ .department{padding:6px}
+ .departmentTitle{padding:9px 2px;font-size:12px}
+ .departmentPerson{font-size:12px;padding:9px 3px}
 }
 </style>
 </head>
 
 <body>
-
 <header>
 <h1>🇺🇦 СТРІЙ UA</h1>
-<p>Список, присутність, ролі та зведення</p>
+<p>Список, присутність, ролі та відділення</p>
 </header>
 
 <main>
@@ -185,13 +110,17 @@ button:disabled{
 <label for="role">Спеціальна роль</label>
 <select id="role"></select>
 
+<label for="department">Відділення</label>
+<select id="department">
+<option value="1">1 відділення</option>
+<option value="2">2 відділення</option>
+<option value="3">3 відділення</option>
+<option value="4">4 відділення</option>
+</select>
+
 <button class="primary" id="add">Додати до списку</button>
-
-<p class="muted">
-Додавай людей у список. Порядок можна змінювати стрілками.
-</p>
+<p class="muted">Порядок у загальному списку можна змінювати стрілками.</p>
 </section>
-
 
 <section>
 <h2>☑️ Список ліцеїстів</h2>
@@ -202,32 +131,53 @@ button:disabled{
 </div>
 
 <p class="count" id="count"></p>
-
 <input id="search" placeholder="🔎 Пошук за прізвищем">
-
 <div id="people"></div>
 </section>
 
-
 <section>
-<h2>📋 Зведення присутніх</h2>
+<h2>📊 Присутність</h2>
 
-<button class="primary" id="build">
-Оновити зведення
-</button>
+<div class="stats">
+<div class="stat">
+<span id="presentCount">0</span>
+<small>Присутні</small>
+</div>
+<div class="stat">
+<span id="absentCount">0</span>
+<small>Відсутні</small>
+</div>
+</div>
+
+<div class="absentList">
+<h3>Відсутні:</h3>
+<div id="absentNames"></div>
+</div>
 </section>
 
+<section>
+<h2>📐 Налаштування відображення</h2>
+<label for="cols">Кількість відділень</label>
+<select id="cols">
+<option value="4">4 відділення</option>
+<option value="3">3 відділення</option>
+</select>
+<p class="muted">Вибір змінює кількість карток, які показуються на екрані.</p>
+</section>
 
 <section>
-<h2>🟩 Результат</h2>
+<h2>🟩 Відділення</h2>
+<p class="muted">Присутні люди, згруповані за вибраним відділенням.</p>
+<div id="departments" class="departmentGrid"></div>
+</section>
 
-<p id="status">Додай людей і натисни «Оновити зведення».</p>
-
+<section>
+<h2>📋 Зведення за ролями</h2>
+<p id="status">Додай людей до списку.</p>
 <div id="formation"></div>
 </section>
 
 </main>
-
 
 <script>
 "use strict";
@@ -245,24 +195,16 @@ const roles=[
 ];
 
 const $=id=>document.getElementById(id);
-
 const storageKey="striy_ua_people_v3";
-
 let people=[];
 
-
 function makeId(){
- return Date.now().toString(36)+
- Math.random().toString(36).slice(2);
+ return Date.now().toString(36)+Math.random().toString(36).slice(2);
 }
-
 
 function load(){
  try{
-  const saved=JSON.parse(
-   localStorage.getItem(storageKey)||"[]"
-  );
-
+  const saved=JSON.parse(localStorage.getItem(storageKey)||"[]");
   if(Array.isArray(saved)){
    people=saved
     .filter(p=>p&&typeof p.name==="string")
@@ -270,7 +212,9 @@ function load(){
      id:p.id||makeId(),
      name:p.name,
      role:roles.includes(p.role)?p.role:roles[0],
-     present:p.present!==false
+     present:p.present!==false,
+     department:[1,2,3,4].includes(Number(p.department))
+      ?Number(p.department):1
     }));
   }
  }catch(e){
@@ -278,49 +222,50 @@ function load(){
  }
 }
 
-
 function save(){
  try{
-  localStorage.setItem(
-   storageKey,
-   JSON.stringify(people)
-  );
+  localStorage.setItem(storageKey,JSON.stringify(people));
  }catch(e){
   alert("Не вдалося зберегти список у браузері.");
  }
 }
 
-
 function element(tag,cls,txt){
  const el=document.createElement(tag);
-
  if(cls)el.className=cls;
-
  if(txt!==undefined)el.textContent=txt;
-
  return el;
 }
 
-
 function roleMenu(selected){
  const select=document.createElement("select");
-
  select.className="roleSelect";
 
  roles.forEach(role=>{
   const opt=document.createElement("option");
-
   opt.value=role;
   opt.textContent=role;
-
   select.appendChild(opt);
  });
 
  select.value=selected;
-
  return select;
 }
 
+function departmentMenu(selected){
+ const select=document.createElement("select");
+ select.className="departmentSelect";
+
+ for(let i=1;i<=4;i++){
+  const opt=document.createElement("option");
+  opt.value=String(i);
+  opt.textContent=i+" відділення";
+  select.appendChild(opt);
+ }
+
+ select.value=String(selected||1);
+ return select;
+}
 
 function addPerson(){
  const name=$("name").value.trim();
@@ -333,23 +278,20 @@ function addPerson(){
 
  people.push({
   id:makeId(),
-  name:name,
+  name,
   role:$("role").value||roles[0],
-  present:true
+  present:true,
+  department:Number($("department").value)||1
  });
 
  $("name").value="";
-
  save();
  render();
-
  $("name").focus();
 }
 
-
 function update(id,fn){
  const p=people.find(x=>x.id===id);
-
  if(p){
   fn(p);
   save();
@@ -357,30 +299,22 @@ function update(id,fn){
  }
 }
 
-
 function move(id,dir){
  const i=people.findIndex(p=>p.id===id);
  const j=i+dir;
 
  if(i<0||j<0||j>=people.length)return;
 
- [people[i],people[j]]=[
-  people[j],
-  people[i]
- ];
-
+ [people[i],people[j]]=[people[j],people[i]];
  save();
  render();
 }
 
-
-function render(){
+function renderPeople(){
  const host=$("people");
-
  host.replaceChildren();
 
  const query=$("search").value.toLocaleLowerCase("uk");
-
  const present=people.filter(p=>p.present).length;
 
  $("count").textContent=
@@ -391,94 +325,45 @@ function render(){
  );
 
  if(!filtered.length){
-  host.appendChild(
-   element(
-    "p",
-    "muted",
-    people.length
-     ?"Нічого не знайдено."
-     :"Список порожній. Додай першу людину."
-   )
-  );
+  host.appendChild(element(
+   "p","muted",
+   people.length?"Нічого не знайдено.":"Список порожній. Додай першу людину."
+  ));
  }
 
  filtered.forEach(p=>{
   const i=people.indexOf(p);
-
   const card=element("div","person");
 
-  const top=element("div","personTop");
-
-  const info=element("div");
-
-  info.appendChild(
-   element("div","personName",`${i+1}. ${p.name}`)
-  );
-
-  info.appendChild(
-   element(
-    "div",
-    "muted",
-    p.present?"🟢 Присутній":"🔴 Відсутній"
-   )
-  );
-
-  top.appendChild(info);
-  card.appendChild(top);
-
+  card.appendChild(element("div","personName",`${i+1}. ${p.name}`));
+  card.appendChild(element("div","muted",p.present?"🟢 Присутній":"🔴 Відсутній"));
 
   const buttons=element("div","personButtons");
 
-
-  const toggle=element(
-   "button",
-   p.present?"present":"absent",
-   p.present?"✓ Є":"✕ Немає"
-  );
-
-  toggle.onclick=()=>{
-   update(p.id,x=>x.present=!x.present);
-  };
-
+  const toggle=element("button",p.present?"present":"absent",p.present?"✓ Є":"✕ Немає");
+  toggle.onclick=()=>update(p.id,x=>x.present=!x.present);
   buttons.appendChild(toggle);
 
-
   const up=element("button","secondary","↑");
-
   up.disabled=i===0;
-
   up.onclick=()=>move(p.id,-1);
-
   buttons.appendChild(up);
 
-
   const down=element("button","secondary","↓");
-
   down.disabled=i===people.length-1;
-
   down.onclick=()=>move(p.id,1);
-
   buttons.appendChild(down);
 
-
   const edit=element("button","secondary","✎");
-
   edit.onclick=()=>{
-   const value=prompt(
-    "Зміни прізвище або ім'я",
-    p.name
-   );
-
+   const value=prompt("Зміни прізвище або ім'я",p.name);
    if(value!==null&&value.trim()){
     update(p.id,x=>x.name=value.trim());
    }
   };
-
   buttons.appendChild(edit);
 
-
   const del=element("button","danger","🗑");
-
   del.onclick=()=>{
    if(confirm(`Видалити ${p.name}?`)){
     people=people.filter(x=>x.id!==p.id);
@@ -486,119 +371,131 @@ function render(){
     render();
    }
   };
-
   buttons.appendChild(del);
 
   card.appendChild(buttons);
 
-
   const select=roleMenu(p.role);
-
-  select.setAttribute(
-   "aria-label",
-   "Роль: "+p.name
-  );
-
-  select.onchange=()=>{
-   update(p.id,x=>x.role=select.value);
-  };
-
+  select.setAttribute("aria-label","Роль: "+p.name);
+  select.onchange=()=>update(p.id,x=>x.role=select.value);
   card.appendChild(select);
+
+  const dept=departmentMenu(p.department);
+  dept.setAttribute("aria-label","Відділення: "+p.name);
+  dept.onchange=()=>update(p.id,x=>x.department=Number(dept.value));
+  card.appendChild(dept);
 
   host.appendChild(card);
  });
 }
 
+function renderPresence(){
+ const active=people.filter(p=>p.present);
+ const absent=people.filter(p=>!p.present);
 
-function build(){
+ $("presentCount").textContent=active.length;
+ $("absentCount").textContent=absent.length;
+
+ const host=$("absentNames");
+ host.replaceChildren();
+
+ if(!absent.length){
+  host.appendChild(element("p","muted","Немає відсутніх."));
+  return;
+ }
+
+ absent.forEach(p=>{
+  host.appendChild(element("div","absentName",p.name));
+ });
+}
+
+function renderDepartments(){
+ const host=$("departments");
+ host.replaceChildren();
+
+ const cols=Number($("cols").value)||4;
+
+ for(let i=1;i<=cols;i++){
+  const group=people.filter(
+   p=>p.present&&Number(p.department)===i
+  );
+
+  const box=element("div","department");
+  const title=element("div","departmentTitle",i+" відділення");
+  box.appendChild(title);
+
+  if(!group.length){
+   box.appendChild(element("div","departmentEmpty","Поки порожньо"));
+  }else{
+   group.forEach(p=>{
+    box.appendChild(element("div","departmentPerson",p.name));
+   });
+  }
+
+  host.appendChild(box);
+ }
+}
+
+function renderRoles(){
  const host=$("formation");
-
  host.replaceChildren();
 
  const active=people.filter(p=>p.present);
 
- if(!active.length){
-  $("status").textContent="Немає присутніх людей.";
-  return;
- }
-
  $("status").textContent=
   `Присутніх: ${active.length} • Відсутніх: ${people.length-active.length}`;
 
+ if(!active.length){
+  host.appendChild(element("p","muted","Немає присутніх."));
+  return;
+ }
+
  roles.forEach(role=>{
   const group=active.filter(p=>p.role===role);
-
   if(!group.length)return;
 
   const box=element("div","summaryGroup");
-
-  box.appendChild(
-   element(
-    "h3",
-    "",
-    `${role} — ${group.length}`
-   )
-  );
+  box.appendChild(element("h3","",`${role} — ${group.length}`));
 
   group.forEach(p=>{
-   box.appendChild(
-    element("div","summaryName",p.name)
-   );
+   box.appendChild(element("div","summaryName",p.name));
   });
 
   host.appendChild(box);
  });
 }
 
+function render(){
+ renderPeople();
+ renderPresence();
+ renderDepartments();
+ renderRoles();
+}
 
 function setAllPresence(value){
- people.forEach(p=>{
-  p.present=value;
- });
-
+ people.forEach(p=>p.present=value);
  save();
  render();
 }
 
-
 load();
 
 const initialRole=roleMenu(roles[0]);
-
 initialRole.id="role";
-
 $("role").replaceWith(initialRole);
-
 
 $("add").addEventListener("click",addPerson);
 
-
 $("name").addEventListener("keydown",e=>{
- if(e.key==="Enter"){
-  addPerson();
- }
+ if(e.key==="Enter")addPerson();
 });
 
-
-$("allYes").addEventListener("click",()=>{
- setAllPresence(true);
-});
-
-
-$("allNo").addEventListener("click",()=>{
- setAllPresence(false);
-});
-
-
+$("allYes").addEventListener("click",()=>setAllPresence(true));
+$("allNo").addEventListener("click",()=>setAllPresence(false));
 $("search").addEventListener("input",render);
-
-
-$("build").addEventListener("click",build);
-
+$("cols").addEventListener("change",render);
 
 render();
-
 </script>
-
 </body>
 </html>
