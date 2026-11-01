@@ -19,13 +19,13 @@ h2{font-size:21px;margin:0 0 16px}
 label{display:block;margin:12px 0 6px;color:#d0e4d7}
 input,select{width:100%;font-size:16px;padding:13px;border:1px solid #547666;border-radius:11px;background:#263f34;color:white}
 button{border:0;border-radius:11px;padding:12px;font-size:15px;font-weight:650;cursor:pointer}
+button:disabled{opacity:.4}
 .primary{background:#79caa6;color:#09251b;width:100%;margin-top:13px}
 .secondary{background:#345347;color:white}
 .danger{background:#6a3737;color:white}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .actions button{flex:1}
 .person{background:#243c32;border-radius:12px;padding:12px;margin:9px 0}
-.personTop{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .personName{font-size:17px;font-weight:700;overflow-wrap:anywhere}
 .muted{color:#b4cfc0;font-size:13px;margin-top:5px}
 .personButtons{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
@@ -35,21 +35,31 @@ button{border:0;border-radius:11px;padding:12px;font-size:15px;font-weight:650;c
 .roleSelect{margin-top:10px}
 .count{color:#9de0bb;margin:12px 0}
 .line{background:#29493b;border-radius:10px;padding:12px;margin:10px 0}
-.positions{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:6px}
-.position{background:#395e4c;border-radius:8px;padding:10px 3px;text-align:center;font-size:12px;overflow-wrap:anywhere}
-.position small{display:block;color:#c6dfd0;margin-bottom:5px}
-.empty{background:#263d33;color:#92ab9e}
 .notice{color:#ffdc9b;font-size:13px;line-height:1.5}
 #status{color:#a9e9c6}
+.attendanceGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.statCard{background:#243c32;border-radius:17px;padding:20px 10px;text-align:center}
+.statNumber{color:#9de0bb;font-size:42px;font-weight:800}
+.statLabel{color:#b4cfc0;font-size:15px}
+.absentList{background:#243c32;border-radius:15px;padding:17px;margin-top:14px}
+.absentTitle{color:#ffaaa0;font-size:17px;font-weight:700}
+.absentName{padding:12px 0;border-top:1px solid #395e4c;font-size:17px}
+.groupCard{background:#29493b;border-radius:14px;padding:14px;margin:12px 0}
+.groupTitle{font-size:19px;font-weight:750;margin-bottom:10px}
+.groupLeader{color:#a9e9c6;font-size:14px;margin-bottom:10px}
+.groupPerson{background:#395e4c;padding:12px;border-radius:9px;margin:6px 0;overflow-wrap:anywhere}
+@media(max-width:390px){
+ .attendanceGrid{gap:8px}
+}
 </style>
 </head>
 <body>
 <header>
 <h1>🇺🇦 СТРІЙ UA</h1>
-<p>Список, присутність, ролі та шикування</p>
+<p>Список, присутність, ролі та відображення</p>
 </header>
-
 <main>
+
 <section>
 <h2>➕ Додати людину</h2>
 <label for="name">Прізвище або ім'я</label>
@@ -57,7 +67,6 @@ button{border:0;border-radius:11px;padding:12px;font-size:15px;font-weight:650;c
 <label for="role">Спеціальна роль</label>
 <select id="role"></select>
 <button class="primary" id="add">Додати до списку</button>
-<p class="muted">Додавай людей від найвищого до найнижчого. Порядок можна змінити стрілками.</p>
 </section>
 
 <section>
@@ -72,26 +81,41 @@ button{border:0;border-radius:11px;padding:12px;font-size:15px;font-weight:650;c
 </section>
 
 <section>
-<h2>📐 Налаштування строю</h2>
+<h2>📊 Присутність</h2>
+<div class="attendanceGrid">
+<div class="statCard">
+<div class="statNumber" id="presentCount">0</div>
+<div class="statLabel">Присутні</div>
+</div>
+<div class="statCard">
+<div class="statNumber" id="absentCount">0</div>
+<div class="statLabel">Відсутні</div>
+</div>
+</div>
+<div class="absentList">
+<div class="absentTitle">Відсутні:</div>
+<div id="absentNames"></div>
+</div>
+</section>
+
+<section>
+<h2>📐 Налаштування відображення</h2>
 <label for="cols">Кількість відділень</label>
 <select id="cols">
 <option value="4">4 відділення</option>
 <option value="3">3 відділення</option>
 </select>
-<p class="muted">Перше відділення — справа. У схемі справа наліво: 1, 2, 3, 4.</p>
-<button class="primary" id="build">Сформувати стрій</button>
+<button class="primary" id="build">Сформувати список</button>
 </section>
 
 <section>
 <h2>⭐ Окремі ролі</h2>
-<div id="separateRoles">
-<p class="muted">Натисни «Сформувати стрій».</p>
-</div>
+<div id="separateRoles"></div>
 </section>
 
 <section>
-<h2>🟩 Схема строю</h2>
-<p id="status">Додай людей і натисни «Сформувати стрій».</p>
+<h2>🟩 Список за відділеннями</h2>
+<p id="status">Додай людей і натисни «Сформувати список».</p>
 <div id="formation"></div>
 </section>
 </main>
@@ -123,13 +147,12 @@ function load(){
  try{
   const saved=JSON.parse(localStorage.getItem(storageKey)||"[]");
   if(Array.isArray(saved)){
-   people=saved.filter(p=>p&&typeof p.name==="string")
-    .map(p=>({
-     id:p.id||makeId(),
-     name:p.name,
-     role:roles.includes(p.role)?p.role:roles[0],
-     present:p.present!==false
-    }));
+   people=saved.filter(p=>p&&typeof p.name==="string").map(p=>({
+    id:p.id||makeId(),
+    name:p.name,
+    role:roles.includes(p.role)?p.role:roles[0],
+    present:p.present!==false
+   }));
   }
  }catch(e){people=[];}
 }
@@ -164,10 +187,7 @@ function roleMenu(selected){
 
 function addPerson(){
  const name=$("name").value.trim();
- if(!name){
-  alert("Введи прізвище або ім'я");
-  return;
- }
+ if(!name){alert("Введи прізвище або ім'я");return;}
  people.push({
   id:makeId(),
   name,
@@ -181,11 +201,7 @@ function addPerson(){
 
 function update(id,fn){
  const p=people.find(x=>x.id===id);
- if(p){
-  fn(p);
-  save();
-  render();
- }
+ if(p){fn(p);save();render();}
 }
 
 function move(id,dir){
@@ -197,15 +213,32 @@ function move(id,dir){
  render();
 }
 
+function renderAttendance(){
+ const present=people.filter(p=>p.present);
+ const absent=people.filter(p=>!p.present);
+ $("presentCount").textContent=present.length;
+ $("absentCount").textContent=absent.length;
+
+ const host=$("absentNames");
+ host.replaceChildren();
+
+ if(!absent.length){
+  host.appendChild(element("div","absentName","Немає відсутніх"));
+ }else{
+  absent.forEach(p=>{
+   host.appendChild(element("div","absentName",p.name));
+  });
+ }
+}
+
 function render(){
  const host=$("people");
  host.replaceChildren();
-
  const query=$("search").value.toLocaleLowerCase("uk");
  const present=people.filter(p=>p.present).length;
 
  $("count").textContent=
-  `Є: ${present} • Немає: ${people.length-present} • Всього: ${people.length}`;
+ `Є: ${present} • Немає: ${people.length-present} • Всього: ${people.length}`;
 
  const filtered=people.filter(p=>
   p.name.toLocaleLowerCase("uk").includes(query)
@@ -221,25 +254,13 @@ function render(){
  filtered.forEach(p=>{
   const i=people.indexOf(p);
   const card=element("div","person");
-  const top=element("div","personTop");
-  const info=element("div");
 
-  info.appendChild(element("div","personName",`${i+1}. ${p.name}`));
-  info.appendChild(element(
-   "div","muted",
-   p.present?"🟢 Присутній":"🔴 Відсутній"
-  ));
-
-  top.appendChild(info);
-  card.appendChild(top);
+  card.appendChild(element("div","personName",`${i+1}. ${p.name}`));
+  card.appendChild(element("div","muted",p.present?"🟢 Присутній":"🔴 Відсутній"));
 
   const buttons=element("div","personButtons");
 
-  const toggle=element(
-   "button",
-   p.present?"present":"absent",
-   p.present?"✓ Є":"✕ Немає"
-  );
+  const toggle=element("button",p.present?"present":"absent",p.present?"✓ Є":"✕ Немає");
   toggle.onclick=()=>update(p.id,x=>x.present=!x.present);
   buttons.appendChild(toggle);
 
@@ -256,9 +277,7 @@ function render(){
   const edit=element("button","secondary","✎");
   edit.onclick=()=>{
    const value=prompt("Зміни прізвище або ім'я",p.name);
-   if(value!==null&&value.trim()){
-    update(p.id,x=>x.name=value.trim());
-   }
+   if(value!==null&&value.trim())update(p.id,x=>x.name=value.trim());
   };
   buttons.appendChild(edit);
 
@@ -271,7 +290,6 @@ function render(){
    }
   };
   buttons.appendChild(del);
-
   card.appendChild(buttons);
 
   const select=roleMenu(p.role);
@@ -281,106 +299,73 @@ function render(){
 
   host.appendChild(card);
  });
+
+ renderAttendance();
 }
 
 function build(){
  const cols=Number($("cols").value);
- const active=people.filter(p=>p.present);
+ const active=people.filter(p=>
+  p.present &&
+  p.role!=="Командир взводу" &&
+  p.role!=="Старшина"
+ );
+
  const host=$("formation");
  const separate=$("separateRoles");
-
  host.replaceChildren();
  separate.replaceChildren();
 
- if(!active.length){
-  $("status").textContent="Немає присутніх людей.";
-  separate.appendChild(element("p","muted","Немає присутніх людей."));
-  return;
- }
-
- // Окреме відображення командира взводу та старшини.
  ["Командир взводу","Старшина"].forEach(role=>{
-  const members=active.filter(p=>p.role===role);
   const block=element("div","line");
   block.appendChild(element("div","personName",role));
+  const members=people.filter(p=>p.present&&p.role===role);
 
   if(members.length){
-   members.forEach(p=>{
-    block.appendChild(element("div","muted",p.name));
-   });
+   members.forEach(p=>block.appendChild(element("div","muted",p.name)));
   }else{
    block.appendChild(element("div","muted","Не призначено"));
   }
-
   separate.appendChild(block);
  });
 
- // Командир взводу та старшина не входять до загального списку.
- const excludedRoles=["Командир взводу","Старшина"];
- const regular=active.filter(p=>!excludedRoles.includes(p.role));
-
- const rows=Math.ceil(regular.length/cols);
-
- if(!regular.length){
-  $("status").textContent="У загальному списку немає інших присутніх.";
+ if(!active.length){
+  $("status").textContent="Немає інших присутніх людей.";
   return;
  }
 
- // Нейтральне відображення записів за відділеннями.
- const headingLine=element("div","line");
- const heading=element("div","positions");
- heading.style.setProperty("--cols",cols);
-
- for(let c=cols;c>=1;c--){
-  heading.appendChild(element("div","position",`${c} відділення`));
- }
-
- headingLine.appendChild(heading);
- host.appendChild(headingLine);
-
+ // Рівномірне групування списку за кількістю присутніх.
  const groups=Array.from({length:cols},()=>[]);
- regular.forEach((p,i)=>{
+ active.forEach((p,i)=>{
   groups[i%cols].push(p);
  });
 
- const maxRows=Math.max(...groups.map(g=>g.length));
+ groups.forEach((group,index)=>{
+  const block=element("div","groupCard");
+  block.appendChild(element("div","groupTitle",`${index+1} відділення`));
 
- for(let r=0;r<maxRows;r++){
-  const line=element("div","line");
-  line.appendChild(element("div","muted",`Рядок ${r+1}`));
+  const leader=people.find(p=>
+   p.present && p.role===`Командир ${index+1} відділення`
+  );
 
-  const grid=element("div","positions");
-  grid.style.setProperty("--cols",cols);
+  block.appendChild(element(
+   "div","groupLeader",
+   leader?`Командир відділення: ${leader.name}`:"Командира не призначено"
+  ));
 
-  for(let c=cols-1;c>=0;c--){
-   const p=groups[c][r];
-   const cell=element("div",p?"position":"position empty");
-
-   cell.appendChild(element("small",`${c+1} відд.`));
-   cell.appendChild(document.createTextNode(p?p.name:"—"));
-   grid.appendChild(cell);
+  if(group.length){
+   group.forEach(p=>{
+    block.appendChild(element("div","groupPerson",p.name));
+   });
+  }else{
+   block.appendChild(element("div","groupPerson","—"));
   }
 
-  line.appendChild(grid);
-  host.appendChild(line);
- }
+  host.appendChild(block);
+ });
 
  $("status").textContent=
-  `У списку: ${regular.length} • Відділень: ${cols}`;
-
- if(regular.length%cols!==0){
-  host.appendChild(element(
-   "p","notice",
-   "Кількість записів не ділиться порівну між відділеннями."
-  ));
- }
-
- if(active.some(p=>p.role==="Командир 4 відділення")&&cols===3){
-  host.appendChild(element(
-   "p","notice",
-   "Командир 4 відділення: обрано лише 3 відділення."
-  ));
- }
+ `Присутні у списку: ${active.length} • Груп: ${cols}`;
 }
 
 load();
@@ -390,7 +375,6 @@ initialRole.id="role";
 $("role").replaceWith(initialRole);
 
 $("add").onclick=addPerson;
-
 $("name").addEventListener("keydown",e=>{
  if(e.key==="Enter")addPerson();
 });
