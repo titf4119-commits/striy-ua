@@ -222,95 +222,196 @@ function render(){
   host.appendChild(card);
  });
 }
-function build(){
+ function build(){
  const cols=Number($("cols").value);
  const active=people.filter(p=>p.present);
  const host=$("formation");
  host.replaceChildren();
- const platoonCommander=active.find(p=>p.role==="Командир взводу");
 
-if(platoonCommander){
+ const platoonCommander=active.find(
+  p=>p.role==="Командир взводу"
+ );
+
+ if(platoonCommander){
   const box=element("div","notice");
   box.textContent="Командир взводу: "+platoonCommander.name;
   host.appendChild(box);
-}
- if(!active.length){
-  $("status").textContent="Немає присутніх людей.";
+ }
+
+ const formationPeople=active.filter(
+  p=>p.role!=="Командир взводу"
+ );
+
+ if(!formationPeople.length){
+  $("status").textContent="Немає присутніх у строю.";
   return;
  }
+
  const warnings=[];
  const used=new Set();
  const ordered=[];
+
  function take(role){
-  const matches=formationPeople.filter(p=>p.role===role&&!used.has(p.id));
-  matches.forEach(p=>{ordered.push(p);used.add(p.id);});
+  const matches=formationPeople.filter(
+   p=>p.role===role&&!used.has(p.id)
+  );
+  matches.forEach(p=>{
+   ordered.push(p);
+   used.add(p.id);
+  });
  }
+
  take("Завжди перший");
  take("Старшина");
+
  formationPeople.forEach(p=>{
-  if(!used.has(p.id)&&!p.role.startsWith("Командир ")&&p.role!=="Завжди останній"){
-   ordered.push(p);used.add(p.id);
+  if(
+   !used.has(p.id)&&
+   !p.role.startsWith("Командир ")&&
+   p.role!=="Завжди останній"
+  ){
+   ordered.push(p);
+   used.add(p.id);
   }
  });
- // Командирів відділень розміщуємо окремо.
+
  const commanders={};
+
  for(let c=1;c<=cols;c++){
-  const found=formationPeople.filter(p=>p.role===`Командир ${c} відділення`);
-  if(found.length>1)warnings.push(`Кілька командирів ${c} відділення.`);
-  if(found.length)commanders[c]=found[0];
+  const found=formationPeople.filter(
+   p=>p.role===`Командир ${c} відділення`
+  );
+
+  if(found.length>1){
+   warnings.push(`Кілька командирів ${c} відділення.`);
+  }
+
+  if(found.length){
+   commanders[c]=found[0];
+  }
  }
- const assignedIds=new Set(Object.values(commanders).map(p=>p.id));
- const regular=ordered.filter(p=>!assignedIds.has(p.id));
- const last=formationPeople.filter(p=>p.role==="Завжди останній"&&!assignedIds.has(p.id));
- const extra=formationPeople.filter(p=>p.role.startsWith("Командир ")&&!assignedIds.has(p.id)&&!regular.includes(p));
+
+ const assignedIds=new Set(
+  Object.values(commanders).map(p=>p.id)
+ );
+
+ const regular=ordered.filter(
+  p=>!assignedIds.has(p.id)
+ );
+
+ const last=formationPeople.filter(
+  p=>p.role==="Завжди останній"&&!assignedIds.has(p.id)
+ );
+
+ const extra=formationPeople.filter(
+  p=>p.role.startsWith("Командир ")&&
+  !assignedIds.has(p.id)&&
+  !regular.includes(p)
+ );
+
  extra.forEach(p=>regular.push(p));
  last.forEach(p=>regular.push(p));
+
  const rows=Math.ceil(formationPeople.length/cols);
  const slots=Array(rows*cols).fill(null);
- // Перші місця відділень відведені командирам.
+
  for(let c=1;c<=cols;c++){
-  if(commanders[c])slots[c-1]=commanders[c];
+  if(commanders[c]){
+   slots[c-1]=commanders[c];
+  }
  }
- const placed=new Set(Object.values(commanders).map(p=>p.id));
- const pool=regular.filter(p=>!placed.has(p.id));
+
+ const placed=new Set(
+  Object.values(commanders).map(p=>p.id)
+ );
+
+ const pool=regular.filter(
+  p=>!placed.has(p.id)
+ );
+
  let cursor=0;
+
  for(let r=0;r<rows;r++){
   for(let c=1;c<=cols;c++){
    const index=r*cols+c-1;
-   if(!slots[index]&&cursor<pool.length)slots[index]=pool[cursor++];
+
+   if(!slots[index]&&cursor<pool.length){
+    slots[index]=pool[cursor++];
+   }
   }
  }
- // Відображення: перше відділення справа.
+
  const head=element("div","line");
  head.style.setProperty("--cols",cols);
+
  const heading=element("div","positions");
  heading.style.setProperty("--cols",cols);
+
  for(let c=cols;c>=1;c--){
-  heading.appendChild(element("div","position",`${c} відділення`));
+  heading.appendChild(
+   element("div","position",`${c} відділення`)
+  );
  }
+
  head.appendChild(heading);
  host.appendChild(head);
+
  for(let r=0;r<rows;r++){
   const line=element("div","line");
-  line.appendChild(element("div","muted",`Шеренга ${r+1}`));
+
+  line.appendChild(
+   element("div","muted",`Шеренга ${r+1}`)
+  );
+
   const grid=element("div","positions");
   grid.style.setProperty("--cols",cols);
+
   for(let c=cols;c>=1;c--){
    const p=slots[r*cols+c-1];
-   const cell=element("div",p?"position":"position empty");
-   cell.appendChild(element("small",`${c} відд.`));
-   cell.appendChild(document.createTextNode(p?p.name:"—"));
+
+   const cell=element(
+    "div",
+    p?"position":"position empty"
+   );
+
+   cell.appendChild(
+    element("small",`${c} відд.`)
+   );
+
+   cell.appendChild(
+    document.createTextNode(p?p.name:"—")
+   );
+
    grid.appendChild(cell);
   }
+
   line.appendChild(grid);
   host.appendChild(line);
  }
- $("status").textContent=`У строю: ${active.length} • Відділень: ${cols} • Шеренг: ${rows}`;
- if(active.length%cols!==0){
-  warnings.push("Кількість присутніх не кратна кількості відділень. Є неповна шеренга.");
+
+ $("status").textContent=
+  `У строю: ${formationPeople.length} • Відділень: ${cols} • Шеренг: ${rows}`;
+
+ if(formationPeople.length%cols!==0){
+  warnings.push(
+   "Кількість присутніх не кратна кількості відділень. Є неповна шеренга."
+  );
  }
- if(active.some(p=>p.role==="Командир 4 відділення")&&cols===3){
-  warnings.push("Командир 4 відділення: обрано лише 3 відділення.");
+
+ if(
+  active.some(p=>p.role==="Командир 4 відділення")&&cols===3
+ ){
+  warnings.push(
+   "Командир 4 відділення: обрано лише 3 відділення."
+  );
+ }
+
+ if(warnings.length){
+  const note=element("p","notice");
+  note.textContent=warnings.join(" ");
+  host.appendChild(note);
+ }
+}
  }
  if(warnings.length){
   host.appendChild(element("p","notice",warnings.join(" ")));
