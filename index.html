@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -337,6 +338,7 @@ function build(){
   p.role!=="Старшина"
  );
 
+ // Окремо показуємо командира взводу та старшину.
  ["Командир взводу","Старшина"].forEach(role=>{
   const block=element("div","line");
   block.appendChild(element("div","personName",role));
@@ -359,6 +361,7 @@ function build(){
   return;
  }
 
+ // Знаходимо командирів відділень.
  const leaders=Array(cols).fill(null);
  const leaderIds=new Set();
 
@@ -372,18 +375,47 @@ function build(){
   }
  }
 
+ // Решта людей для адміністративних списків.
  const regular=active.filter(p=>!leaderIds.has(p.id));
+
+ // Кількість записів у кожному списку.
+ // Командир відділення враховується в загальній кількості.
  const sizes=calculateSizes(active.length,cols);
 
- // Нейтральні адміністративні списки:
- // записи показуються по черзі в окремих списках,
- // без визначення фізичних місць чи позицій.
  const groups=Array.from({length:cols},()=>[]);
 
- regular.forEach((person,index)=>{
-  groups[index%cols].push(person);
- });
+ // Вільна кількість місць у кожному адміністративному списку.
+ const capacities=sizes.map((size,index)=>
+  Math.max(0,size-(leaders[index]?1:0))
+ );
 
+ // Почергове заповнення списків.
+ // Коли список досягає своєї розрахованої кількості,
+ // наступні записи переходять до інших списків.
+ let cursor=0;
+ let groupIndex=0;
+
+ while(cursor<regular.length){
+  let checked=0;
+
+  while(
+   capacities[groupIndex]===0 &&
+   checked<cols
+  ){
+   groupIndex=(groupIndex+1)%cols;
+   checked++;
+  }
+
+  if(checked===cols)break;
+
+  groups[groupIndex].push(regular[cursor]);
+  capacities[groupIndex]--;
+
+  cursor++;
+  groupIndex=(groupIndex+1)%cols;
+ }
+
+ // Відображення карток у порядку 4, 3, 2, 1.
  const grid=element("div","groupGrid");
 
  for(let index=cols-1;index>=0;index--){
@@ -406,14 +438,19 @@ function build(){
 
   block.appendChild(element(
    "div","groupCount",
-   `Записів: ${group.length}`
+   `Кількість: ${sizes[index]}`
   ));
 
   if(group.length){
    group.forEach(p=>{
-    block.appendChild(element("div","groupPerson",p.name));
+    block.appendChild(element(
+     "div","groupPerson",
+     p.name
+    ));
    });
-  }else{
+  }
+
+  if(!group.length&&!leader){
    block.appendChild(element("div","groupPerson","—"));
   }
 
@@ -423,7 +460,7 @@ function build(){
  host.appendChild(grid);
 
  $("status").textContent=
- `Присутні у списках: ${active.length} • Відділень: ${cols}`;
+ `Присутні у списках: ${active.length} • Відділень: ${cols} • Розподіл: ${sizes.join(" / ")}`;
 }
 
 load();
