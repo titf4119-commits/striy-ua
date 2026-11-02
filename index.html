@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -376,21 +375,15 @@ function build(){
  const regular=active.filter(p=>!leaderIds.has(p.id));
  const sizes=calculateSizes(active.length,cols);
 
+ // Нейтральні адміністративні списки:
+ // записи показуються по черзі в окремих списках,
+ // без визначення фізичних місць чи позицій.
  const groups=Array.from({length:cols},()=>[]);
- let cursor=0;
 
- for(let i=0;i<cols;i++){
-  const size=sizes[i];
-  const leader=leaders[i];
-  const regularSlots=size-(leader?1:0);
+ regular.forEach((person,index)=>{
+  groups[index%cols].push(person);
+ });
 
-  for(let j=0;j<regularSlots&&cursor<regular.length;j++){
-   groups[i].push(regular[cursor++]);
-  }
- }
-
- // Показуємо картки у зворотному порядку:
- // 4, 3, 2, 1 або 3, 2, 1.
  const grid=element("div","groupGrid");
 
  for(let index=cols-1;index>=0;index--){
@@ -413,17 +406,14 @@ function build(){
 
   block.appendChild(element(
    "div","groupCount",
-   `Кількість: ${sizes[index]}`
+   `Записів: ${group.length}`
   ));
 
   if(group.length){
    group.forEach(p=>{
-    block.appendChild(element(
-     "div","groupPerson",
-     p.name
-    ));
+    block.appendChild(element("div","groupPerson",p.name));
    });
-  }else if(!leader){
+  }else{
    block.appendChild(element("div","groupPerson","—"));
   }
 
@@ -433,7 +423,7 @@ function build(){
  host.appendChild(grid);
 
  $("status").textContent=
- `Присутні у списках: ${active.length} • Відділень: ${cols} • Розподіл: ${sizes.join(" / ")}`;
+ `Присутні у списках: ${active.length} • Відділень: ${cols}`;
 }
 
 load();
